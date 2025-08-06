@@ -23,8 +23,14 @@ public class AuthorController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AuthorDTO> getAuthorById(@PathVariable Long id) {
+    public ResponseEntity<AuthorDTO> getAuthorById(@PathVariable(value = "id") Long id) {
         return authorService.getAuthorById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{firstName}/{lastName}")
+    public ResponseEntity<AuthorDTO> findByFirstNameAndLastName(@PathVariable(value = "firstName") String firstName, @PathVariable(value = "lastName") String lastName) {
+
+        return authorService.findByFirstNameAndLastName(firstName, lastName).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
@@ -33,8 +39,8 @@ public class AuthorController {
     }
 
     @GetMapping
-    public List<AuthorDTO> getAllAuthors() {
-        return authorService.getAllAuthors();
+    public ResponseEntity<List<AuthorDTO>> getAllAuthors() {
+        return new ResponseEntity<>(authorService.getAllAuthors(), HttpStatus.FOUND);
     }
 
     @DeleteMapping("/{id}")

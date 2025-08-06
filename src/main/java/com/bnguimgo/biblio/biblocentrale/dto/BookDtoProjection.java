@@ -3,7 +3,7 @@ package com.bnguimgo.biblio.biblocentrale.dto;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -17,6 +17,6 @@ public class BookDtoProjection implements Serializable {
 
     private String title;
     private String isbn;
-    private Date createdDate;
-    private Date modifiedDate;
+    private LocalDateTime createdDate;
+    private LocalDateTime modifiedDate;
 }

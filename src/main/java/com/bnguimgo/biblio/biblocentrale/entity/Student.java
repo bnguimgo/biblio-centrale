@@ -1,11 +1,10 @@
 package com.bnguimgo.biblio.biblocentrale.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,7 +13,7 @@ import java.util.Set;
 @AllArgsConstructor //Permet de créer un contrôleur avec tous les paramètres
 @NoArgsConstructor //Permet d'avoir un contrôleur par défaut
 //@EqualsAndHashCode
-@ToString//(exclude = {"items"})           // Surcharge la méthode toString de l'objet en cours
+@ToString(exclude = {"books"})           // Surcharge la méthode toString de l'objet en cours
 @Builder
 @Entity
 @Table(name = "students")
@@ -22,7 +21,8 @@ import java.util.Set;
 public class Student {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)//Evitez d'utiliser GenerationType.AUTO qui est la génération de la clé primaire par l'ORM, car cela peut créer des inconsistances
+    //Source: https://vladmihalcea.com/why-should-not-use-the-auto-jpa-generationtype-with-mysql-and-hibernate/
     private Long id;
 
     @NotBlank(message = "Le prénom de l'auteur est obligatoire")
@@ -30,14 +30,9 @@ public class Student {
     @NotBlank(message = "Le nom de l'auteur est obligatoire")
     private String lastName;
 
-    @Column(updatable = false)
-    private Date createdDate;
-    private Date modifiedDate;
-
-    @JsonManagedReference
-    //@OneToMany(mappedBy="student", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OneToMany(mappedBy="student", cascade = CascadeType.ALL)
-    public Set<Item> items;
+    @Column(updatable = false, nullable = false)
+    private LocalDateTime createdDate;
+    private LocalDateTime modifiedDate;
 
 
     //Source: https://www.baeldung.com/jpa-many-to-many
@@ -47,8 +42,8 @@ public class Student {
     @ManyToMany
     @JoinTable(
             name = "borrow_book",
-            joinColumns = @JoinColumn(name = "student_id"),
-            inverseJoinColumns = @JoinColumn(name = "book_id"))
+            joinColumns = {@JoinColumn(name = "student_id")},
+            inverseJoinColumns = {@JoinColumn(name = "book_id")})
     Set<Book> books = new HashSet<>();
 
 }

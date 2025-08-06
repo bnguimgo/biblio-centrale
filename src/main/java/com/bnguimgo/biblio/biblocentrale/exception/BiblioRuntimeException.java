@@ -6,12 +6,12 @@ import org.springframework.http.HttpStatus;
 @Getter
 //https://www.baeldung.com/rest-api-error-handling-best-practices
 //Source: RuntimeException de JAVA
-public class BiblioException extends Exception {
+public class BiblioRuntimeException extends RuntimeException {
 
     private final BiblioErrorEnum biblioErrorEnum;
     private final HttpStatus httpStatus;
 
-    public BiblioException(BiblioErrorEnum biblioErrorEnum, HttpStatus httpStatus, String details) {
+    public BiblioRuntimeException(BiblioErrorEnum biblioErrorEnum, HttpStatus httpStatus, String details) {
         super(details);
         this.biblioErrorEnum = biblioErrorEnum;
         this.httpStatus = httpStatus;

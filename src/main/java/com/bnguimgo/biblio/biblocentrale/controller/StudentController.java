@@ -1,6 +1,6 @@
 package com.bnguimgo.biblio.biblocentrale.controller;
 
-import com.bnguimgo.biblio.biblocentrale.entity.Student;
+import com.bnguimgo.biblio.biblocentrale.dto.StudentDTO;
 import com.bnguimgo.biblio.biblocentrale.exception.BiblioException;
 import com.bnguimgo.biblio.biblocentrale.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,31 +15,31 @@ import java.util.List;
 public class StudentController {
 
     @Autowired
-    private StudentService authorService;
+    private StudentService studentService;
 
     @PostMapping
-    public ResponseEntity<Student> createStudent(@RequestBody Student student){
-        return new ResponseEntity<>(authorService.createStudent(student), HttpStatus.CREATED);
+    public ResponseEntity<StudentDTO> createStudent(@RequestBody StudentDTO studentDto){
+        return new ResponseEntity<>(studentService.createStudent(studentDto), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Student> getStudentById(@PathVariable Long id) {
-        return authorService.getStudentById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<StudentDTO> getStudentById(@PathVariable Long id) {
+        return studentService.getStudentById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Student> updateStudent(@PathVariable(value = "id") Long id,@RequestBody Student student) throws BiblioException {
-        return new ResponseEntity<>(authorService.updateStudent(id, student), HttpStatus.OK);
+    public ResponseEntity<StudentDTO> updateStudent(@PathVariable(value = "id") Long id,@RequestBody StudentDTO studentDto) throws BiblioException {
+        return new ResponseEntity<>(studentService.updateStudent(id, studentDto), HttpStatus.OK);
     }
 
     @GetMapping
-    public List<Student> getAllStudents() {
-        return authorService.getAllStudents();
+    public ResponseEntity<List<StudentDTO>> getAllStudents() {
+        return new ResponseEntity<>(studentService.getAllStudents(), HttpStatus.FOUND);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStudent(@PathVariable Long id) throws BiblioException {
-        authorService.deleteStudent(id);
+        studentService.deleteStudent(id);
         return ResponseEntity.noContent().build();
     }
     

@@ -32,8 +32,8 @@ public class BiblioError {
         this.status = status;
         this.details = details;
         this.errors = errors;
-        this.url = null;
-        this.errorCode = null;
+        this.url = "";
+        this.errorCode = "";
     }
 
     public BiblioError(HttpStatus status, String details, String error) {
@@ -41,8 +41,8 @@ public class BiblioError {
         this.status = status;
         this.details = details;
         this.errors = Collections.singletonList(error);
-        this.url = null;
-        this.errorCode = null;
+        this.url = "";
+        this.errorCode = "";
     }
 
 }

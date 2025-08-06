@@ -1,28 +1,36 @@
 package com.bnguimgo.biblio.biblocentrale.service;
 
-import com.bnguimgo.biblio.biblocentrale.entity.Item;
+import com.bnguimgo.biblio.biblocentrale.dto.StudentDTO;
+import com.bnguimgo.biblio.biblocentrale.entity.Book;
 import com.bnguimgo.biblio.biblocentrale.entity.Student;
 import com.bnguimgo.biblio.biblocentrale.exception.BiblioException;
 import com.bnguimgo.biblio.biblocentrale.mapper.DtoMapper;
-import com.bnguimgo.biblio.biblocentrale.repository.ItemRepository;
 import com.bnguimgo.biblio.biblocentrale.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.*;
-import java.util.function.Function;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.bnguimgo.biblio.biblocentrale.exception.BiblioErrorEnum.STUDENT_CANNOT_DELETE;
 import static com.bnguimgo.biblio.biblocentrale.exception.BiblioErrorEnum.STUDENT_NOT_FOUND;
 
 @Service
+@Transactional(
+        isolation = Isolation.READ_COMMITTED, //Ceci est l'annotation par défaut, mais qui ne règle pas complètement le problème de Lost Update (Voir les liens ci-dessus)
+        propagation = Propagation.SUPPORTS,
+        readOnly = true,
+        timeout = 30)
 public class StudentService {
 
     private final StudentRepository studentRepository;
-    @Autowired
-    private ItemRepository itemRepository;
 
     @Autowired
     private DtoMapper mapper;
@@ -32,68 +40,52 @@ public class StudentService {
         this.studentRepository = studentRepository;
     }
 
-    public List<Student> getAllStudents() {
+    public List<StudentDTO> getAllStudents() {
 
-        return studentRepository.findAll();
+        return studentRepository.findAll().stream()
+                .map(mapper::mapToStudentDTO).collect(Collectors.toList());
     }
 
-    public Optional<Student> getStudentById(Long id) {
+    public Optional<StudentDTO> getStudentById(Long id) {
 
-        return studentRepository.findById(id);
+        return studentRepository.findById(id).map(mapper::mapToStudentDTO);
     }
 
-    public Student createStudent(Student student) {
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Modifying
+    public StudentDTO createStudent(StudentDTO studentDto) {
 
-        Date now = Date.from(Instant.now());
-        student.setCreatedDate(now);
-        student.setModifiedDate(now);
-        if( !CollectionUtils.isEmpty(student.getItems())) {
-            student.getItems().forEach(item -> {
-                item.setCreatedDate(now);
-                item.setModifiedDate(now);
-            });
-        }
-        return studentRepository.save(student);
+        Student student = mapper.mapToStudent(studentDto);
+        student.setCreatedDate(LocalDateTime.now());
+        return mapper.mapToStudentDTO(studentRepository.save(student));
 
     }
 
-    public Student updateStudent(Long id, Student student) throws BiblioException {
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Modifying
+    public StudentDTO updateStudent(Long id, StudentDTO studentDTO) throws BiblioException {
 
         return studentRepository.findById(id).map(studentToSave -> {
 
-            Date now = Date.from(Instant.now());
-            studentToSave.setModifiedDate(now);
-            studentToSave.setFirstName(student.getFirstName());
-            studentToSave.setLastName(student.getLastName());
-            //FIXME UPDATE THIS
-/*            Set<Item> items = itemRepository.findAllByIdIn((student.getItems().stream().map(Item::getId).collect(Collectors.toList())));
-            items.forEach(item ->{
-                item.setItemName(student.getItems().stream().findFirst().orElseThrow(null).getItemName());
-                item.setItemName(student.getItems().stream().findFirst().orElseThrow(null).getItemName());
-            });
-            studentToSave.setItems(items);*/
+            studentToSave.setModifiedDate(LocalDateTime.now());
+            studentToSave.setFirstName(studentDTO.getFirstName());
+            studentToSave.setLastName(studentDTO.getLastName());
 
-            Map<Long,Item> itemsMap = student.getItems().stream().collect(Collectors.toMap(Item::getId, Function.identity()));
-            Set<Item> items = itemRepository.findAllByIdIn(itemsMap.keySet());
-            items.forEach(item ->{
-                item.setItemName(itemsMap.get(item.getId()).getItemName());
-                item.setItemCode(itemsMap.get(item.getId()).getItemCode());
-                item.setModifiedDate(Date.from(Instant.now()));
-            });
-            studentToSave.setItems(items);
+            return mapper.mapToStudentDTO(studentRepository.save(studentToSave));
 
-            return studentRepository.save(studentToSave);
-
-        }).orElseThrow(() -> new BiblioException(STUDENT_NOT_FOUND, "Student not found with id: " + id));
+        }).orElseThrow(() -> new BiblioException(STUDENT_NOT_FOUND, HttpStatus.NOT_FOUND, "Student not found with id: " + id));
 
     }
 
-    public void deleteStudent(Long id) throws BiblioException {
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Modifying
+    public void deleteStudent(Long studentId) throws BiblioException {
 
-        if (studentRepository.existsById(id)) {
-            studentRepository.deleteById(id);
-        } else {
-            throw new BiblioException(STUDENT_NOT_FOUND, "Student not found with id: " + id);
+        Student student = studentRepository.findById(studentId).orElseThrow(() -> new BiblioException(STUDENT_NOT_FOUND, HttpStatus.NOT_FOUND, "Student not found with id = " + studentId));
+        if(!student.getBooks().isEmpty()) {
+            throw new BiblioException(STUDENT_CANNOT_DELETE, HttpStatus.BAD_REQUEST, "Cannot delete Student with books, please first remove borrowed books ids = "+
+                    student.getBooks().stream().map(Book::getId).collect(Collectors.toSet()) + " from Student");
         }
+        studentRepository.deleteById(studentId);
     }
 }

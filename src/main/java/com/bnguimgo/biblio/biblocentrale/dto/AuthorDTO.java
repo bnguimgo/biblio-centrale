@@ -1,14 +1,9 @@
 package com.bnguimgo.biblio.biblocentrale.dto;
 
-import com.bnguimgo.biblio.biblocentrale.entity.Book;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-import org.hibernate.validator.constraints.Length;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,17 +25,7 @@ public class AuthorDTO implements Serializable {
     private String emailAddress;
     private String phoneNumber;
     private int age;
-    private Date createdDate;
-    private Date modifiedDate;
-    //private Set<BookDTO> books = new HashSet<>();
+    private LocalDateTime createdDate;
+    private LocalDateTime modifiedDate;
     private Set<BookDtoProjection> books = new HashSet<>();
-/*    public void addBook(BookDTO book) {
-        books.add(book);
-        book.setAuthor(this);
-    }*/
-
-    public void removeBook(BookDTO book) {
-        books.remove(book);
-        book.setAuthor(null);
-    }
 }

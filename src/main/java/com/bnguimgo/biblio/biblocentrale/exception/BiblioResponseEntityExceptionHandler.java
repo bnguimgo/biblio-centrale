@@ -33,7 +33,7 @@ public class BiblioResponseEntityExceptionHandler extends ResponseEntityExceptio
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
-            HttpHeaders headers,
+            HttpHeaders headers, //voir les annotations dans la classe package-info.java
             HttpStatusCode status,
             WebRequest request) {
         List<String> errors = new ArrayList<>();
@@ -49,14 +49,6 @@ public class BiblioResponseEntityExceptionHandler extends ResponseEntityExceptio
                 ex, biblioError, headers, biblioError.getStatus(), request);
     }
 
-/*    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        List<String> validationList = ex.getBindingResult().getFieldErrors().stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(validationList, status);
-    }*/
-
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestParameter(
             MissingServletRequestParameterException ex, HttpHeaders headers,
@@ -67,12 +59,6 @@ public class BiblioResponseEntityExceptionHandler extends ResponseEntityExceptio
         return new ResponseEntity<>(
                 biblioError, new HttpHeaders(), biblioError.getStatus());
     }
-
-/*    @ExceptionHandler(value = { NoHandlerFoundException.class })
-    public ResponseEntity<Object> noHandlerFoundException(Exception ex) {
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("test");
-    }*/
 
     @Override
     protected ResponseEntity<Object> handleNoHandlerFoundException(
@@ -93,7 +79,7 @@ public class BiblioResponseEntityExceptionHandler extends ResponseEntityExceptio
         builder.append(ex.getMethod());
         builder.append(
                 " method is not supported for this request. Supported methods are ");
-        ex.getSupportedHttpMethods().forEach(t -> builder.append(t + " "));
+        ex.getSupportedHttpMethods().forEach(t -> builder.append(t).append(" "));
 
         BiblioError biblioError = new BiblioError(HttpStatus.METHOD_NOT_ALLOWED,
                 ex.getLocalizedMessage(), builder.toString());
@@ -110,7 +96,7 @@ public class BiblioResponseEntityExceptionHandler extends ResponseEntityExceptio
         StringBuilder builder = new StringBuilder();
         builder.append(ex.getContentType());
         builder.append(" media type is not supported. Supported media types are ");
-        ex.getSupportedMediaTypes().forEach(t -> builder.append(t + ", "));
+        ex.getSupportedMediaTypes().forEach(t -> builder.append(t).append(", "));
 
         BiblioError biblioError = new BiblioError(HttpStatus.UNSUPPORTED_MEDIA_TYPE,
                 ex.getLocalizedMessage(), builder.substring(0, builder.length() - 2));
@@ -144,22 +130,23 @@ public class BiblioResponseEntityExceptionHandler extends ResponseEntityExceptio
                 biblioError, new HttpHeaders(), biblioError.getStatus());
     }
 
-/*    @ExceptionHandler({ RuntimeException.class })
-    public ResponseEntity<Object> handleRuntimeException(RuntimeException ex, WebRequest request) {
-        BiblioError biblioError = new BiblioError(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage(), "technical error occurred");
-        return new ResponseEntity<>(biblioError, new HttpHeaders(), biblioError.getStatus());
-    }*/
+    @ExceptionHandler({ BiblioException.class})
+    public ResponseEntity<Object> handleBiblioExceptions(BiblioException ex, HttpServletRequest req, WebRequest request) {
+        BiblioError biblioError = new BiblioError(req.getRequestURL().toString(), ex.getHttpStatus(), ex.getBiblioErrorEnum().getErrorCode(), ex.getBiblioErrorEnum().getError(), ex.getMessage());
+        log.error(req.getRequestURL().toString(), ex);
+        return new ResponseEntity<>(biblioError, biblioError.getStatus());
+    }
 
-    @ExceptionHandler({ BiblioException.class })
-    public ResponseEntity<Object> handleAllExceptions(BiblioException ex, HttpServletRequest req, WebRequest request) {
-        BiblioError biblioError = new BiblioError(req.getRequestURL().toString(), HttpStatus.NOT_FOUND, ex.getBiblioErrorEnum().getErrorCode(), ex.getBiblioErrorEnum().getErrors(), ex.getMessage());
+    @ExceptionHandler({ BiblioRuntimeException.class })
+    public ResponseEntity<Object> handleBiblioRuntimeExceptions(BiblioRuntimeException ex, HttpServletRequest req, WebRequest request) {
+        BiblioError biblioError = new BiblioError(req.getRequestURL().toString(), ex.getHttpStatus(), ex.getBiblioErrorEnum().getErrorCode(), ex.getBiblioErrorEnum().getError(), ex.getMessage());
         log.error(req.getRequestURL().toString(), ex);
         return new ResponseEntity<>(biblioError, biblioError.getStatus());
     }
 
     @ExceptionHandler({ Exception.class })
     public ResponseEntity<Object> handleAllExceptions(Exception ex, HttpServletRequest req, WebRequest request) {
-        BiblioError biblioError = new BiblioError(req.getRequestURL().toString(), HttpStatus.INTERNAL_SERVER_ERROR, TECHNICAL_ERROR.getErrorCode(), TECHNICAL_ERROR.getErrors(), ex.getMessage());
+        BiblioError biblioError = new BiblioError(req.getRequestURL().toString(), HttpStatus.INTERNAL_SERVER_ERROR, TECHNICAL_ERROR.getErrorCode(), TECHNICAL_ERROR.getError(), ex.getMessage());
         log.error(req.getRequestURL().toString(), ex);
         return new ResponseEntity<>(biblioError, new HttpHeaders(), biblioError.getStatus());
     }

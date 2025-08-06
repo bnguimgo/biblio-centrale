@@ -1,6 +1,8 @@
 package com.bnguimgo.biblio.biblocentrale.controller;
 
 import com.bnguimgo.biblio.biblocentrale.dto.BookDTO;
+import com.bnguimgo.biblio.biblocentrale.dto.BookStudentAssignDTO;
+import com.bnguimgo.biblio.biblocentrale.dto.StudentBookDTO;
 import com.bnguimgo.biblio.biblocentrale.exception.BiblioException;
 import com.bnguimgo.biblio.biblocentrale.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +32,8 @@ public class BookController {
     }
 
     @GetMapping
-    public List<BookDTO> getAllBooks() {
-        return bookService.getAllBooks();
+    public ResponseEntity<List<BookDTO>> getAllBooks() {
+        return new ResponseEntity<>(bookService.getAllBooks(), HttpStatus.FOUND);
     }
 
     @PutMapping("/{bookId}")
@@ -46,6 +48,19 @@ public class BookController {
                                               @PathVariable(value = "authorId") Long authorId) throws BiblioException {
 
         return new ResponseEntity<>(bookService.assignBookToAuthor(bookId, authorId), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{bookId}/assign/students/{studentId}")
+    public ResponseEntity<BookStudentAssignDTO> assignBookToStudent(@PathVariable(value = "bookId") Long bookId,
+                                                                    @PathVariable(value = "studentId") Long studentId) throws BiblioException {
+
+        return new ResponseEntity<>(bookService.assignBookToStudent(bookId, studentId), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{bookId}/remove/students/{studentId}")
+    public ResponseEntity<StudentBookDTO> removeBookFromStudent(@PathVariable(value = "bookId") Long bookId,
+                                                              @PathVariable(value = "studentId") Long studentId) throws BiblioException {
+        return new ResponseEntity<>(bookService.removeBookFromStudent(bookId, studentId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{bookId}")
