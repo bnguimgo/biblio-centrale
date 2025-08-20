@@ -44,7 +44,7 @@ public class BiblioResponseEntityExceptionHandler extends ResponseEntityExceptio
             errors.add(error.getObjectName() + ": " + error.getDefaultMessage());
         }
 
-        BiblioError biblioError = new BiblioError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
+        BiblioError biblioError = new BiblioError(headers.getLocation().getPath(), HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
         return handleExceptionInternal(
                 ex, biblioError, headers, biblioError.getStatus(), request);
     }
@@ -55,7 +55,7 @@ public class BiblioResponseEntityExceptionHandler extends ResponseEntityExceptio
             HttpStatusCode status, WebRequest request) {
         String error = ex.getParameterName() + " parameter is missing";
 
-        BiblioError biblioError = new BiblioError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
+        BiblioError biblioError = new BiblioError(headers.getLocation().getPath(), HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
         return new ResponseEntity<>(
                 biblioError, new HttpHeaders(), biblioError.getStatus());
     }
@@ -65,7 +65,7 @@ public class BiblioResponseEntityExceptionHandler extends ResponseEntityExceptio
             NoHandlerFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         String error = "No handler found for " + ex.getHttpMethod() + " " + ex.getRequestURL();
 
-        BiblioError biblioError = new BiblioError(HttpStatus.NOT_FOUND, ex.getLocalizedMessage(), error);
+        BiblioError biblioError = new BiblioError(headers.getLocation().getPath(), HttpStatus.NOT_FOUND, ex.getLocalizedMessage(), error);
         return new ResponseEntity<>(biblioError, new HttpHeaders(), biblioError.getStatus());
     }
 
@@ -81,7 +81,7 @@ public class BiblioResponseEntityExceptionHandler extends ResponseEntityExceptio
                 " method is not supported for this request. Supported methods are ");
         ex.getSupportedHttpMethods().forEach(t -> builder.append(t).append(" "));
 
-        BiblioError biblioError = new BiblioError(HttpStatus.METHOD_NOT_ALLOWED,
+        BiblioError biblioError = new BiblioError(headers.getLocation().getPath(), HttpStatus.METHOD_NOT_ALLOWED,
                 ex.getLocalizedMessage(), builder.toString());
         return new ResponseEntity<>(
                 biblioError, new HttpHeaders(), biblioError.getStatus());
@@ -98,7 +98,7 @@ public class BiblioResponseEntityExceptionHandler extends ResponseEntityExceptio
         builder.append(" media type is not supported. Supported media types are ");
         ex.getSupportedMediaTypes().forEach(t -> builder.append(t).append(", "));
 
-        BiblioError biblioError = new BiblioError(HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+        BiblioError biblioError = new BiblioError(headers.getLocation().getPath(), HttpStatus.UNSUPPORTED_MEDIA_TYPE,
                 ex.getLocalizedMessage(), builder.substring(0, builder.length() - 2));
         return new ResponseEntity<>(
                 biblioError, new HttpHeaders(), biblioError.getStatus());
@@ -106,7 +106,7 @@ public class BiblioResponseEntityExceptionHandler extends ResponseEntityExceptio
 
     @ExceptionHandler(value = { ConstraintViolationException.class })
     public ResponseEntity<Object> handleConstraintViolation(
-            ConstraintViolationException ex, WebRequest request) {
+            ConstraintViolationException ex, HttpServletRequest request) {
         List<String> errors = new ArrayList<>();
         for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
             errors.add(violation.getRootBeanClass().getName() + " " +
@@ -114,18 +114,18 @@ public class BiblioResponseEntityExceptionHandler extends ResponseEntityExceptio
         }
 
         BiblioError biblioError =
-                new BiblioError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
+                new BiblioError(request.getRequestURL().toString(), HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
         return new ResponseEntity<>(
                 biblioError, new HttpHeaders(), biblioError.getStatus());
     }
 
     @ExceptionHandler({ MethodArgumentTypeMismatchException.class })
     public ResponseEntity<Object> handleMethodArgumentTypeMismatch(
-            MethodArgumentTypeMismatchException ex, WebRequest request) {
+            MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
         String error =
                 ex.getName() + " should be of type " + ex.getRequiredType().getName();
 
-        BiblioError biblioError = new BiblioError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
+        BiblioError biblioError = new BiblioError(request.getRequestURL().toString(), HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
         return new ResponseEntity<>(
                 biblioError, new HttpHeaders(), biblioError.getStatus());
     }

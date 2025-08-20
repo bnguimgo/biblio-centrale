@@ -7,6 +7,7 @@ import com.bnguimgo.biblio.biblocentrale.exception.BiblioException;
 import com.bnguimgo.biblio.biblocentrale.mapper.DtoMapper;
 import com.bnguimgo.biblio.biblocentrale.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -40,12 +41,14 @@ public class StudentService {
         this.studentRepository = studentRepository;
     }
 
+    @ReadOnlyProperty
     public List<StudentDTO> getAllStudents() {
 
         return studentRepository.findAll().stream()
                 .map(mapper::mapToStudentDTO).collect(Collectors.toList());
     }
 
+    @ReadOnlyProperty
     public Optional<StudentDTO> getStudentById(Long id) {
 
         return studentRepository.findById(id).map(mapper::mapToStudentDTO);
@@ -83,7 +86,7 @@ public class StudentService {
 
         Student student = studentRepository.findById(studentId).orElseThrow(() -> new BiblioException(STUDENT_NOT_FOUND, HttpStatus.NOT_FOUND, "Student not found with id = " + studentId));
         if(!student.getBooks().isEmpty()) {
-            throw new BiblioException(STUDENT_CANNOT_DELETE, HttpStatus.BAD_REQUEST, "Cannot delete Student with books, please first remove borrowed books ids = "+
+            throw new BiblioException(STUDENT_CANNOT_DELETE, HttpStatus.BAD_REQUEST, "Cannot delete Student with borrowed books, please first remove borrowed books ids = "+
                     student.getBooks().stream().map(Book::getId).collect(Collectors.toSet()) + " from Student");
         }
         studentRepository.deleteById(studentId);

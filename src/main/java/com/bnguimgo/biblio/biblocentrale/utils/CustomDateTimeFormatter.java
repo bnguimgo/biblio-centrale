@@ -8,6 +8,9 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Cette classe est nécessaire sinon, impossible de parser les dates
+ */
 @Configuration
 //Source: https://www.baeldung.com/spring-boot-formatting-json-dates
 // configure a default date format in our application.

@@ -3,6 +3,7 @@ package com.bnguimgo.biblio.biblocentrale.service;
 import com.bnguimgo.biblio.biblocentrale.dto.BookDTO;
 import com.bnguimgo.biblio.biblocentrale.dto.BookStudentAssignDTO;
 import com.bnguimgo.biblio.biblocentrale.dto.StudentBookDTO;
+import com.bnguimgo.biblio.biblocentrale.entity.Author;
 import com.bnguimgo.biblio.biblocentrale.entity.Book;
 import com.bnguimgo.biblio.biblocentrale.entity.Student;
 import com.bnguimgo.biblio.biblocentrale.exception.BiblioException;
@@ -12,6 +13,7 @@ import com.bnguimgo.biblio.biblocentrale.repository.AuthorRepository;
 import com.bnguimgo.biblio.biblocentrale.repository.BookRepository;
 import com.bnguimgo.biblio.biblocentrale.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -69,10 +71,12 @@ public class BookService {
         }).orElseThrow(() -> new BiblioException(AUTHOR_NOT_FOUND, HttpStatus.NOT_FOUND, "Author not found with id = " + authorId));
     }
 
+    @ReadOnlyProperty
     public Optional<BookDTO> getBookById(Long id) {
         return bookRepository.findById(id).map(mapper::mapToBookDTO);
     }
 
+    @ReadOnlyProperty
     public List<BookDTO> getAllBooks() {
 
         return bookRepository.findAll().stream()
@@ -101,9 +105,20 @@ public class BookService {
         Book book = bookRepository.findById(bookId).orElseThrow(() -> new BiblioException(BOOK_NOT_FOUND, HttpStatus.NOT_FOUND, "Book not found with id = " + bookId));
         return authorRepository.findById(authorId).map(author -> {
 
-            book.setModifiedDate(LocalDateTime.now());
+            LocalDateTime now = LocalDateTime.now();
+
+            //Il faut également mettre à jour la date de modification de l'auteur chez qui on retire le livre
+            Author authorSource = book.getAuthor();
+            authorSource.setModifiedDate(now);
+            authorSource = mapper.validateModifiedDate(authorSource);
+            authorRepository.save(authorSource);
+
+            //On met à jour la date de modification du livre et l'auteur cible
+            book.setModifiedDate(now);
+            author.setModifiedDate(now);
             book.setAuthor(author);
 
+            //On affecte au final le livre au nouvel auteur
             return mapper.mapToBookDTO(bookRepository.save(book));
 
         }).orElseThrow(() -> new BiblioException(AUTHOR_NOT_FOUND, HttpStatus.NOT_FOUND, "Author not found  with id = " + authorId));

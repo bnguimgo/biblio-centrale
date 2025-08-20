@@ -1,16 +1,17 @@
 package com.bnguimgo.biblio.biblocentrale.mapper;
 
+import com.bnguimgo.biblio.biblocentrale.annotation.ValidDateComparator;
 import com.bnguimgo.biblio.biblocentrale.dto.*;
 import com.bnguimgo.biblio.biblocentrale.entity.Author;
 import com.bnguimgo.biblio.biblocentrale.entity.Book;
 import com.bnguimgo.biblio.biblocentrale.entity.Student;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
+@Validated
 public class DtoMapper {
 
     public BookDTO mapToBookDTO(Book book) {
@@ -95,7 +96,7 @@ public class DtoMapper {
                 .build();
     }
 
-    public Author mapToAuthor(AuthorDTO authorDTO) {
+    public Author mapToAuthor(@ValidDateComparator AuthorDTO authorDTO) {
 
         return Author.builder()
                 .id(authorDTO.getId())
@@ -179,5 +180,9 @@ public class DtoMapper {
                         .map(this::mapToBook)
                         .collect(Collectors.toSet()))
                 .build();
+    }
+
+    public Author validateModifiedDate(@ValidDateComparator Author author) {
+        return author; //return author after validation with ValidDateComparator
     }
 }

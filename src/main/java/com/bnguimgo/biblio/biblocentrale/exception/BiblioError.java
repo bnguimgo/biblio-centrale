@@ -27,22 +27,22 @@ public class BiblioError {
 
     }
 
-    public BiblioError(HttpStatus status, String details, List<String> errors) {
+    public BiblioError(String url, HttpStatus status, String details, List<String> errors) {
         super();
         this.status = status;
         this.details = details;
         this.errors = errors;
-        this.url = "";
-        this.errorCode = "";
+        this.url = url;
+        this.errorCode = ""+status.value();
     }
 
-    public BiblioError(HttpStatus status, String details, String error) {
+    public BiblioError(String url, HttpStatus status, String details, String error) {
         super();
         this.status = status;
         this.details = details;
         this.errors = Collections.singletonList(error);
-        this.url = "";
-        this.errorCode = "";
+        this.url = url;
+        this.errorCode = ""+status.value();
     }
 
 }

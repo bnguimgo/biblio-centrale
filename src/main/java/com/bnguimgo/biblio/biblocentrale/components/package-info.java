@@ -15,7 +15,7 @@
  */
 @NonNullApi
 @NonNullFields
-package com.bnguimgo.biblio.biblocentrale.exception;
+package com.bnguimgo.biblio.biblocentrale.components;
 
 import org.springframework.lang.NonNullApi;
 import org.springframework.lang.NonNullFields;
