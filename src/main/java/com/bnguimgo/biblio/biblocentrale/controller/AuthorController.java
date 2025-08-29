@@ -1,14 +1,21 @@
 package com.bnguimgo.biblio.biblocentrale.controller;
 
 import com.bnguimgo.biblio.biblocentrale.dto.AuthorDTO;
+import com.bnguimgo.biblio.biblocentrale.exception.BiblioErrorEnum;
 import com.bnguimgo.biblio.biblocentrale.exception.BiblioException;
+import com.bnguimgo.biblio.biblocentrale.exception.BiblioRuntimeException;
 import com.bnguimgo.biblio.biblocentrale.service.AuthorService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.MalformedURLException;
+import java.text.ParseException;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * <h2>Qu'est ce que l'annotation @CrossOrigin dans spring ? </h2>
@@ -43,15 +50,45 @@ public class AuthorController {
         return new ResponseEntity<>(authorService.createAuthor(authorDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
+/*    @GetMapping("/{id}")
     public ResponseEntity<AuthorDTO> getAuthorById(@PathVariable(value = "id") Long id) {
         return authorService.getAuthorById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }*/
+
+/*    @GetMapping("/{id}")
+    public ResponseEntity<AuthorDTO> getAuthorById(@PathVariable(value = "id") Long id, HttpServletRequest request) {
+        String idToken = request.getHeader("Authorization");
+        if(null != idToken) {
+            idToken = idToken.substring(7);
+        }
+        return authorService.getAuthorById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }*/
+
+    /**
+     * Source : <a href="https://www.baeldung.com/spring-extract-custom-header-request">spring-extract-custom-header-request</a>
+     * NB : Ne pas utiliser directement HttpServletRequest, car on n'a pas besoin de toutes ses méthodes
+     * En lieu et place, il faut utiliser @RequestHeader(name="header_property_name")
+     * On peut également utiliser HandlerInterceptor
+     * @param id author id
+     * @param idToken token identify
+     * @return return serialized Author
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<AuthorDTO> getAuthorById(@PathVariable(value = "id") Long id, @RequestHeader(name = "Authorization") String idToken, Authentication authentication) throws BiblioException {
+        if(null != idToken) {
+            idToken = idToken.substring(7);
+        }
+        String name = authentication.getName();
+        //return authorService.getAuthorById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
+        //return authorService.getAuthorById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        //return new ResponseEntity<>(authorService.getAuthorById(id).orElseGet(AuthorDTO::new), HttpStatus.FOUND);
+        return new ResponseEntity<>(authorService.getAuthorById(id).orElseThrow(() -> new BiblioException(BiblioErrorEnum.AUTHOR_NOT_FOUND, HttpStatus.NO_CONTENT, "No Author found with id " +id)), HttpStatus.FOUND);
     }
 
     @GetMapping("/{firstName}/{lastName}")
     public ResponseEntity<AuthorDTO> findByFirstNameAndLastName(@PathVariable(value = "firstName") String firstName, @PathVariable(value = "lastName") String lastName) {
 
-        return authorService.findByFirstNameAndLastName(firstName, lastName).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return authorService.findByFirstNameAndLastName(firstName, lastName).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
     }
 
     @PutMapping("/{id}")

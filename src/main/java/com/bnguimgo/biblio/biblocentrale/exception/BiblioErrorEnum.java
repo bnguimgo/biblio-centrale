@@ -19,7 +19,11 @@ public enum BiblioErrorEnum {
     STUDENT_CANNOT_DELETE("CANNOT_DELETE_STUDENT","Cannot delete Student with remaining books"),
 
     //Enum for Technical errors
-    TECHNICAL_ERROR("TECHNICAL_ERROR","technical error occurred");
+    TECHNICAL_ERROR("TECHNICAL_ERROR","technical error occurred"),
+
+    //Token validation
+    TOKEN_NULL("TOKEN_NULL","token cannot be null"),
+    TOKEN_INVALID("TOKEN_INVALID","invalid token");
 
     private final String errorCode;
 

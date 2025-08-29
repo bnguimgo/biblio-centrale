@@ -7,7 +7,6 @@ import jakarta.validation.ConstraintValidatorContext;
 
 public class AuthorModifierDateValidatorImpl implements ConstraintValidator<ValidDateComparator, Object> {
 
-
     @Override
     public boolean isValid(Object authorDtoObj, ConstraintValidatorContext constraintValidatorContext) {
         if(authorDtoObj instanceof AuthorDTO authorDTO ) {
