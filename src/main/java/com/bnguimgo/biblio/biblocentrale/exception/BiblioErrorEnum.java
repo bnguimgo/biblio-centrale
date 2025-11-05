@@ -6,6 +6,10 @@ import lombok.Getter;
 public enum BiblioErrorEnum {
 
     //Enum for Author errors
+    USER_NOT_FOUND("USER_NOT_FOUND","User not found"),
+    USER_CANNOT_DELETE("CANNOT_DELETE_USER","Cannot delete User account"),
+
+    //Enum for Author errors
     AUTHOR_NOT_FOUND("AUTHOR_NOT_FOUND","Author not found"),
     AUTHOR_CANNOT_DELETE("CANNOT_DELETE_AUTHOR","Cannot delete Author with remaining books"),
 

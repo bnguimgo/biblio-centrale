@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.MalformedURLException;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -38,6 +39,7 @@ import java.util.function.Supplier;
  * <p>
  * Au niveau d’une méthode → uniquement cet endpoint est autorisé
  */
+@CrossOrigin(origins = "http://localhost:8092") //FIXME il faut activer ça
 @RestController
 @RequestMapping("/api/v1/authors")
 public class AuthorController {
@@ -82,13 +84,13 @@ public class AuthorController {
         //return authorService.getAuthorById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
         //return authorService.getAuthorById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
         //return new ResponseEntity<>(authorService.getAuthorById(id).orElseGet(AuthorDTO::new), HttpStatus.FOUND);
-        return new ResponseEntity<>(authorService.getAuthorById(id).orElseThrow(() -> new BiblioException(BiblioErrorEnum.AUTHOR_NOT_FOUND, HttpStatus.NO_CONTENT, "No Author found with id " +id)), HttpStatus.FOUND);
+        return new ResponseEntity<>(authorService.getAuthorById(id), HttpStatus.OK);
     }
 
     @GetMapping("/{firstName}/{lastName}")
-    public ResponseEntity<AuthorDTO> findByFirstNameAndLastName(@PathVariable(value = "firstName") String firstName, @PathVariable(value = "lastName") String lastName) {
+    public ResponseEntity<AuthorDTO> findByFirstNameAndLastName(@PathVariable(value = "firstName") String firstName, @PathVariable(value = "lastName") String lastName) throws BiblioException {
 
-        return authorService.findByFirstNameAndLastName(firstName, lastName).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
+        return new ResponseEntity<>(authorService.findByFirstNameAndLastName(firstName, lastName), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
@@ -97,8 +99,8 @@ public class AuthorController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AuthorDTO>> getAllAuthors() {
-        return new ResponseEntity<>(authorService.getAllAuthors(), HttpStatus.FOUND);
+    public ResponseEntity<List<AuthorDTO>> getAllAuthors() throws BiblioException {
+        return new ResponseEntity<>(authorService.getAllAuthors(), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

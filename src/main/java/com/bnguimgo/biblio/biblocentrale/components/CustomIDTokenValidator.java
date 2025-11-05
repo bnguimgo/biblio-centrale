@@ -30,6 +30,8 @@ public class CustomIDTokenValidator {
     @Autowired
     PropertiesServiceConfig properties;
 
+    private static final String MISSING_JWT_AUDIENCE = "Missing JWT audience (aud) claim";
+
     public IDTokenValidator buildValidator() throws MalformedURLException {
 
         // The required parameters
@@ -41,19 +43,25 @@ public class CustomIDTokenValidator {
     }
 
     public void validate (String token) throws ParseException, MalformedURLException {
-        // Parse the ID token
-        JWT idToken = JWTParser.parse(token);
 
         // Set the expected nonce, leave null if none
         IDTokenClaimsSet claims;
 
         try {
+            // Parse the ID token
+            JWT idToken = JWTParser.parse(token);
             claims = buildValidator ().validate(idToken, null);
             log.info("Logged in user " + claims.getSubject());
             log.info("Credentials on server side validated successfully ....");
         } catch (BadJOSEException e) {
-            log.error("IDTokenValidator BadJOSEException " + e.getMessage());
-            throw new BiblioRuntimeException(BiblioErrorEnum.TOKEN_INVALID, HttpStatus.UNAUTHORIZED, "BadJOSEException, Invalid token, try with idToken instead of accesToken "+e.getMessage());
+            if(MISSING_JWT_AUDIENCE.equals(e.getMessage())) {
+                log.error("IDTokenValidator BadJOSEException, please use IdToken instead Access_Token");
+                throw new BiblioRuntimeException(BiblioErrorEnum.TOKEN_INVALID, HttpStatus.UNAUTHORIZED, "Invalid token, please use IdToken instead Access_Token");
+            } else {
+                log.error("IDTokenValidator BadJOSEException : " + e.getMessage());
+                throw new BiblioRuntimeException(BiblioErrorEnum.TOKEN_INVALID, HttpStatus.UNAUTHORIZED, "IDTokenValidator BadJOSEException : " + e.getMessage());
+            }
+
         } catch (JOSEException e) {
             log.error("IDTokenValidator JOSEException " + e.getMessage());
             throw new BiblioRuntimeException(BiblioErrorEnum.TOKEN_INVALID, HttpStatus.UNAUTHORIZED, "JOSEException, Invalid token "+e.getMessage());

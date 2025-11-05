@@ -34,7 +34,7 @@ public class CustomBearerTokenResolver implements BearerTokenResolver {
                 customIDTokenValidator.validate(token);
             } catch (ParseException | MalformedURLException e) {
                 //throw new RuntimeException(e);
-                throw new BiblioRuntimeException(BiblioErrorEnum.TOKEN_INVALID, HttpStatus.UNAUTHORIZED, "Token cannot be null "+e.getMessage());
+                throw new BiblioRuntimeException(BiblioErrorEnum.TOKEN_INVALID, HttpStatus.UNAUTHORIZED, "Invalid token "+e.getMessage());
             }
             return token;
         } else {

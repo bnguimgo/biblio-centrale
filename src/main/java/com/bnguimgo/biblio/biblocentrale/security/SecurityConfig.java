@@ -43,6 +43,10 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * On a besoin de JwtDecoder pour décoder le token
+     * @return renvoie jwtDecoder
+     */
     @Bean
     public JwtDecoder jwtDecoder() {
 
@@ -58,6 +62,7 @@ public class SecurityConfig {
         };
     }
 
+    //Si on n'a pas besoin de loguer le token et le claims
 /*    @Bean
     public JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder//.withJwkSetUri(jwksetUri)

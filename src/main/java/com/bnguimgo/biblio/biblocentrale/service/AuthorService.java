@@ -3,6 +3,7 @@ package com.bnguimgo.biblio.biblocentrale.service;
 import com.bnguimgo.biblio.biblocentrale.dto.AuthorDTO;
 import com.bnguimgo.biblio.biblocentrale.entity.Author;
 import com.bnguimgo.biblio.biblocentrale.entity.Book;
+import com.bnguimgo.biblio.biblocentrale.exception.BiblioErrorEnum;
 import com.bnguimgo.biblio.biblocentrale.exception.BiblioException;
 import com.bnguimgo.biblio.biblocentrale.mapper.DtoMapper;
 import com.bnguimgo.biblio.biblocentrale.repository.AuthorRepository;
@@ -18,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,7 +27,7 @@ import static com.bnguimgo.biblio.biblocentrale.exception.BiblioErrorEnum.AUTHOR
 
 @Service
 @Transactional(
-        isolation = Isolation.READ_COMMITTED, //Ceci est l'annotation par défaut, mais qui ne règle pas complètement le problème de Lost Update (Voir les liens ci-dessus)
+        isolation = Isolation.READ_COMMITTED,
         propagation = Propagation.SUPPORTS,
         readOnly = true,
         timeout = 30)
@@ -47,22 +47,27 @@ public class AuthorService {
     }
 
     @ReadOnlyProperty
-    public List<AuthorDTO> getAllAuthors() {
+    public List<AuthorDTO> getAllAuthors() throws BiblioException {
 
-        return authorRepository.findAll().stream()
-                .map(mapper::mapToAuthorDTO).collect(Collectors.toList());
+        List<AuthorDTO> authors = authorRepository.findAll().stream()
+                .map(mapper::mapToAuthorDTO).toList();
+        if(authors.isEmpty()) {
+            throw new BiblioException(AUTHOR_NOT_FOUND, HttpStatus.NOT_FOUND, AUTHOR_NOT_FOUND.getError());
+        }
+        return authors;
     }
 
     @ReadOnlyProperty
-    public Optional<AuthorDTO> getAuthorById(Long id) {
+    public AuthorDTO getAuthorById(Long id) throws BiblioException {
 
-        return authorRepository.findById(id).map(mapper::mapToAuthorDTO);
+        return authorRepository.findById(id).map(mapper::mapToAuthorDTO)
+                .orElseThrow(() -> new BiblioException(BiblioErrorEnum.AUTHOR_NOT_FOUND, HttpStatus.NO_CONTENT, "No Author found with id " + id));
     }
 
     @ReadOnlyProperty
-    public Optional<AuthorDTO> findByFirstNameAndLastName(String firstName, String lastName){
+    public AuthorDTO findByFirstNameAndLastName(String firstName, String lastName) throws BiblioException {
 
-        return authorRepository.findByFirstNameAndLastName(firstName, lastName).map(mapper::mapToAuthorDTO);
+        return authorRepository.findByFirstNameAndLastName(firstName, lastName).map(mapper::mapToAuthorDTO).orElseThrow(() -> new BiblioException(BiblioErrorEnum.AUTHOR_NOT_FOUND, HttpStatus.NO_CONTENT, "No Author found with firstName " + firstName +" and lastName "+lastName));
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
@@ -100,10 +105,10 @@ public class AuthorService {
         Author author = authorRepository.findById(authorId).orElseThrow(() -> new BiblioException(AUTHOR_NOT_FOUND, HttpStatus.NOT_FOUND, "Author not found with id = " + authorId));
         Set<Book> books = author.getBooks();
         if(!books.isEmpty()) {
-            if(books.stream().anyMatch(book -> ! book.getStudents().isEmpty())){
+            if(books.stream().anyMatch(book -> ! book.getStudents().isEmpty())){ // On s'assure qu'aucun étudiant détient encore le livre
                 throw new BiblioException(AUTHOR_CANNOT_DELETE, HttpStatus.BAD_REQUEST, "Cannot delete Author with existing borrowed books, please first delete or remove bookIds = "+
                         author.getBooks().stream().map(Book::getId).collect(Collectors.toSet()) + " from Author");
-            } else {
+            } else {// Avant de supprimer un auteur, il faut supprimer ses livres
                 Set<Long> booksIds = books.stream().map(Book::getId).collect(Collectors.toSet());
                 bookRepository.deleteAllById(booksIds);
             }
