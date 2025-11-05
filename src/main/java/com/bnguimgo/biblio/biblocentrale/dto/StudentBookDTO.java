@@ -4,7 +4,6 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Set;
 
 //import javax.persistence.Entity;// On utilise plus le package javax
@@ -26,5 +25,5 @@ public class StudentBookDTO implements Serializable {
     private String isbn;
     private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
-    Set<StudentDtoProjection> students = new HashSet<>();
+    Set<StudentDtoProjection> students;
 }

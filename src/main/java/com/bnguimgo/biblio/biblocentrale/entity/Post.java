@@ -28,7 +28,7 @@ public class Post {
     )*/
     @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true)
     @JoinColumn(name = "POST_ID")
-    private Set<PostComment> comments = new HashSet<>();
+    private Set<PostComment> comments;
  
     //Constructors, getters and setters removed for brevity
  

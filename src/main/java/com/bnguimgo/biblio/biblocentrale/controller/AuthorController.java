@@ -1,22 +1,15 @@
 package com.bnguimgo.biblio.biblocentrale.controller;
 
 import com.bnguimgo.biblio.biblocentrale.dto.AuthorDTO;
-import com.bnguimgo.biblio.biblocentrale.exception.BiblioErrorEnum;
 import com.bnguimgo.biblio.biblocentrale.exception.BiblioException;
-import com.bnguimgo.biblio.biblocentrale.exception.BiblioRuntimeException;
 import com.bnguimgo.biblio.biblocentrale.service.AuthorService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.MalformedURLException;
-import java.text.ParseException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * <h2>Qu'est ce que l'annotation @CrossOrigin dans spring ? </h2>

@@ -44,6 +44,6 @@ public class Student {
             name = "borrow_book",
             joinColumns = {@JoinColumn(name = "student_id")},
             inverseJoinColumns = {@JoinColumn(name = "book_id")})
-    Set<Book> books = new HashSet<>();
+    Set<Book> books;
 
 }

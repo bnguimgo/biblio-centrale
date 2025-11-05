@@ -49,7 +49,7 @@ public class Book  implements Serializable {
 
     @ManyToMany(mappedBy = "books")
     @JsonIgnore
-    Set<Student> students = new HashSet<>();
+    Set<Student> students;
 
     public void addStudent(Student student) {
         students.add(student);

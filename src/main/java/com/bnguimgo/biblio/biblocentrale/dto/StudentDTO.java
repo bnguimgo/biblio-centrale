@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -26,6 +25,6 @@ public class StudentDTO {
     private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
 
-    Set<BookDTO> books = new HashSet<>();
+    Set<BookDTO> books;
 
 }

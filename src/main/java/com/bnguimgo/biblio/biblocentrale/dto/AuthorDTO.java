@@ -4,7 +4,6 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Set;
 
 //@Data
@@ -27,5 +26,5 @@ public class AuthorDTO implements Serializable {
     private int age;
     private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
-    private Set<BookDtoProjection> books = new HashSet<>();
+    private Set<BookDtoProjection> books;
 }

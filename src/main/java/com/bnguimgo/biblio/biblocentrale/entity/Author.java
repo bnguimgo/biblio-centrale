@@ -48,7 +48,7 @@ public class Author implements Serializable {
     //Source IMPORTANTE: https://stackoverflow.com/questions/43357413/parent-id-null-in-onetomany-mapping-jpa
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "AUTHOR_ID")
-    private Set<Book> books = new HashSet<>();
+    private Set<Book> books;
 
     // Source à exploiter: https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa-and-hibernate/
     //The parent entity, Post, features two utility methods (e.g. addComment and removeComment)
