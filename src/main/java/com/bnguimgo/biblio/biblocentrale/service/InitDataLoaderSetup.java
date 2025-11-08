@@ -71,8 +71,8 @@ public class InitDataLoaderSetup implements ApplicationListener<ContextRefreshed
 
         // Create Admin profil
         User admin_2 = new User();
-        admin_2.setFirstName("Bnguimgo");
-        admin_2.setLastName("Bnguimgo");
+        admin_2.setFirstName("Bertrand");
+        admin_2.setLastName("Nguimgo");
         String adminEmail_2 = "bnguimgo@yahoo.fr";
         admin_2.setEmail(adminEmail_2);
         admin_2.setCreatedDate(LocalDateTime.now());
