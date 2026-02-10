@@ -2,9 +2,7 @@ package com.bnguimgo.biblio.biblocentrale.mapper;
 
 import com.bnguimgo.biblio.biblocentrale.annotation.ValidDateComparator;
 import com.bnguimgo.biblio.biblocentrale.dto.*;
-import com.bnguimgo.biblio.biblocentrale.entity.Author;
-import com.bnguimgo.biblio.biblocentrale.entity.Book;
-import com.bnguimgo.biblio.biblocentrale.entity.Student;
+import com.bnguimgo.biblio.biblocentrale.entity.*;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
@@ -184,5 +182,21 @@ public class DtoMapper {
 
     public Author validateModifiedDate(@ValidDateComparator Author author) {
         return author; //return author after validation with ValidDateComparator
+    }
+
+    public UserDTO toUserDTO(User user) {
+        return new UserDTO(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.isActif(),
+                user.getCreatedDate(),
+                user.getModifiedDate(),
+                user.getRoles()
+                        .stream()
+                        .map(Role::getName)
+                        .collect(Collectors.toSet())
+        );
     }
 }

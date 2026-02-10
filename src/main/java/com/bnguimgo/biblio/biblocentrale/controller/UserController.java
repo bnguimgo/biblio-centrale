@@ -1,5 +1,6 @@
 package com.bnguimgo.biblio.biblocentrale.controller;
 
+import com.bnguimgo.biblio.biblocentrale.dto.UserDTO;
 import com.bnguimgo.biblio.biblocentrale.entity.User;
 import com.bnguimgo.biblio.biblocentrale.exception.BiblioException;
 import com.bnguimgo.biblio.biblocentrale.service.UserService;
@@ -21,7 +22,7 @@ public class UserController {
     }
 
     @GetMapping("/{email}")
-    public ResponseEntity<User> findByEmail(@PathVariable(value = "email") String email) throws BiblioException {
+    public ResponseEntity<UserDTO> findByEmail(@PathVariable(value = "email") String email) throws BiblioException {
 
         return new ResponseEntity<>(userService.findByEmail(email), HttpStatus.OK);
     }
