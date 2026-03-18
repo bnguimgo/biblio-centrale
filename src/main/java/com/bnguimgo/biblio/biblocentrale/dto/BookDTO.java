@@ -1,5 +1,6 @@
 package com.bnguimgo.biblio.biblocentrale.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.io.Serializable;
@@ -20,6 +21,7 @@ public class BookDTO implements Serializable {
 
     private Long id;
 
+    @NotBlank(message = "Le titre est obligatoire")
     private String title;
     private String isbn;
     private LocalDateTime createdDate;

@@ -3,6 +3,7 @@ package com.bnguimgo.biblio.biblocentrale.controller;
 import com.bnguimgo.biblio.biblocentrale.dto.AuthorDTO;
 import com.bnguimgo.biblio.biblocentrale.exception.BiblioException;
 import com.bnguimgo.biblio.biblocentrale.service.AuthorService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +42,7 @@ public class AuthorController {
     private AuthorService authorService;
 
     @PostMapping
-    public ResponseEntity<AuthorDTO> createAuthor(@RequestBody AuthorDTO authorDTO){
+    public ResponseEntity<AuthorDTO> createAuthor(@RequestBody @Valid AuthorDTO authorDTO){
         return new ResponseEntity<>(authorService.createAuthor(authorDTO), HttpStatus.CREATED);
     }
 
@@ -87,7 +88,7 @@ public class AuthorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AuthorDTO> updateAuthor(@PathVariable(value = "id") Long id,@RequestBody AuthorDTO authorDTO) throws BiblioException {
+    public ResponseEntity<AuthorDTO> updateAuthor(@PathVariable(value = "id") Long id,@RequestBody @Valid AuthorDTO authorDTO) throws BiblioException {
         return new ResponseEntity<>(authorService.updateAuthor(id, authorDTO), HttpStatus.OK);
     }
 

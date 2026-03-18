@@ -3,6 +3,7 @@ package com.bnguimgo.biblio.biblocentrale.controller;
 import com.bnguimgo.biblio.biblocentrale.dto.StudentDTO;
 import com.bnguimgo.biblio.biblocentrale.exception.BiblioException;
 import com.bnguimgo.biblio.biblocentrale.service.StudentService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class StudentController {
     private StudentService studentService;
 
     @PostMapping
-    public ResponseEntity<StudentDTO> createStudent(@RequestBody StudentDTO studentDto){
+    public ResponseEntity<StudentDTO> createStudent(@RequestBody @Valid StudentDTO studentDto){
         return new ResponseEntity<>(studentService.createStudent(studentDto), HttpStatus.CREATED);
     }
 
@@ -28,7 +29,7 @@ public class StudentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<StudentDTO> updateStudent(@PathVariable(value = "id") Long id,@RequestBody StudentDTO studentDto) throws BiblioException {
+    public ResponseEntity<StudentDTO> updateStudent(@PathVariable(value = "id") Long id, @RequestBody @Valid StudentDTO studentDto) throws BiblioException {
         return new ResponseEntity<>(studentService.updateStudent(id, studentDto), HttpStatus.OK);
     }
 

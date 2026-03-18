@@ -10,12 +10,10 @@
  *     Supposons qu'on ait besoin de déclarer une annotation pour tout le package, alors le fichier <b>package-info.java</b>
  *     est le fichier le plus indiqué pour le faire
  * </p>
- *     @NonNullApi Cette annotation indique qu'aucun paramètre, ni une valeur de retour ne peut être nul dans ce package.
- *     @NonNullFields Aucun attribut ou propriété d'une classe de ce package ne peut être nul.
+ *     @NullMarked Cette annotation indique qu'aucun paramètre, ni une valeur de retour ne peut être nul dans ce package.
+ *
  */
-@NonNullApi
-@NonNullFields
+@NullMarked
 package com.bnguimgo.biblio.biblocentrale.components;
 
-import org.springframework.lang.NonNullApi;
-import org.springframework.lang.NonNullFields;
+import org.jspecify.annotations.NullMarked;

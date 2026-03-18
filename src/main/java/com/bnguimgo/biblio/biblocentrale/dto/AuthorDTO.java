@@ -1,5 +1,6 @@
 package com.bnguimgo.biblio.biblocentrale.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.io.Serializable;
@@ -18,7 +19,9 @@ public class AuthorDTO implements Serializable {
 
     private Long id;
 
+    @NotBlank(message = "Le prénom est obligatoire")
     private String firstName;
+    @NotBlank(message = "Le nom est obligatoire")
     private String lastName;
     private String gender;
     private String emailAddress;

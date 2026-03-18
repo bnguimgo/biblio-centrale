@@ -17,9 +17,9 @@ public class StudentDTO {
 
     private Long id;
 
-    @NotBlank(message = "Le prénom de l'auteur est obligatoire")
+    @NotBlank(message = "Le prénom est obligatoire")
     private String firstName;
-    @NotBlank(message = "Le nom de l'auteur est obligatoire")
+    @NotBlank(message = "Le nom est obligatoire")
     private String lastName;
 
     private LocalDateTime createdDate;
